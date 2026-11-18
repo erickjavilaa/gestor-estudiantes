@@ -1,4 +1,5 @@
 """Gestor de estudiantes: lectura/escritura en JSON y operaciones CRUD.
+
 """
 
 import json
@@ -42,7 +43,9 @@ class GestorEstudiantes:
         for item in datos:
             if isinstance(item, dict):
                 estudiante = Estudiante.desde_dict(item)
-                self.estudiantes[str(estudiante.id_iest)] = estudiante
+                # Quitar espacios al ID (también protege ante JSON editado a mano)
+                estudiante.id_iest = str(estudiante.id_iest).strip()
+                self.estudiantes[estudiante.id_iest] = estudiante
 
     def guardar_archivo(self):
         """Escribe todos los estudiantes en el JSON."""
@@ -59,10 +62,10 @@ class GestorEstudiantes:
     # ---------- CRUD ----------
     def agregar(self, estudiante):
         """Agrega un estudiante. ValueError si el ID ya existe."""
-        id_iest = str(estudiante.id_iest).strip()
-        if id_iest in self.estudiantes:
+        estudiante.id_iest = str(estudiante.id_iest).strip()
+        if estudiante.id_iest in self.estudiantes:
             raise ValueError("El ID ya existe")
-        self.estudiantes[id_iest] = estudiante
+        self.estudiantes[estudiante.id_iest] = estudiante
         self.guardar_archivo()
 
     def buscar(self, id_iest):
