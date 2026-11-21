@@ -1,3 +1,5 @@
+import os
+import ctypes
 import tkinter as tk
 from tkinter import ttk, messagebox
 
@@ -5,16 +7,23 @@ from logica.estudiante import Estudiante
 from logica.gestor import GestorEstudiantes
 from logica.validaciones import validar_estudiante, CARRERAS
 
-AZUL = "#1f3a5f"
-AZUL_CLARO = "#2f5d9b"
-FONDO = "#f4f6fa"
+NARANJA = "#c2570c"
+NARANJA_CLARO = "#e8710a"
+FONDO = "#fde8d4"
 BLANCO = "#ffffff"
 ROJO = "#b23b3b"
 
 
 class VentanaPrincipal(tk.Tk):
     def __init__(self):
+        if os.name == "nt":  # solo en Windows
+            try:
+                ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
+                    "iest.gestor.estudiantes")
+            except Exception:
+                pass
         super().__init__()
+        self.poner_icono()
         self.title("Gestor de Estudiantes")
         self.geometry("900x600")
         self.minsize(820, 540)
@@ -32,6 +41,16 @@ class VentanaPrincipal(tk.Tk):
 
         self.actualizar_tabla()
 
+    def poner_icono(self):
+        """Cambia el icono de la ventana. Si no encuentra la imagen, usa el de siempre."""
+        base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        ruta = os.path.join(base, "recursos", "logo.png")
+        try:
+            self.icono = tk.PhotoImage(file=ruta)
+            self.iconphoto(True, self.icono)
+        except tk.TclError:
+            pass
+
     def crear_estilos(self):
         s = ttk.Style(self)
         s.theme_use("clam")
@@ -39,26 +58,28 @@ class VentanaPrincipal(tk.Tk):
         s.configure("Tarjeta.TFrame", background=BLANCO)
         s.configure("Tarjeta.TLabelframe", background=BLANCO)
         s.configure("Tarjeta.TLabelframe.Label", background=BLANCO,
-                    foreground=AZUL, font=("Segoe UI", 11, "bold"))
+                    foreground=NARANJA, font=("Segoe UI", 11, "bold"))
         s.configure("TLabel", background=BLANCO, font=("Segoe UI", 10))
         s.configure("TEntry", padding=4)
         s.configure("TCombobox", padding=4)
-        s.configure("Principal.TButton", background=AZUL_CLARO, foreground="white",
+        s.configure("Principal.TButton", background=NARANJA_CLARO, foreground="white",
                     font=("Segoe UI", 10, "bold"), padding=8, borderwidth=0)
-        s.map("Principal.TButton", background=[("active", AZUL)])
+        s.map("Principal.TButton", background=[("active", NARANJA)])
         s.configure("Peligro.TButton", background=ROJO, foreground="white",
                     font=("Segoe UI", 10, "bold"), padding=8, borderwidth=0)
         s.map("Peligro.TButton", background=[("active", "#8c2d2d")])
         s.configure("Normal.TButton", font=("Segoe UI", 10), padding=8)
         s.configure("Treeview", rowheight=26, font=("Segoe UI", 10))
-        s.configure("Treeview.Heading", background=AZUL, foreground="white",
+        s.configure("Treeview.Heading", background=NARANJA, foreground="white",
                     font=("Segoe UI", 10, "bold"))
-        s.map("Treeview.Heading", background=[("active", AZUL_CLARO)])
+        s.map("Treeview.Heading", background=[("active", NARANJA_CLARO)])
+        s.map("Treeview", background=[("selected", "#e8710a")],
+              foreground=[("selected", "white")])
 
     def crear_encabezado(self):
-        barra = tk.Frame(self, bg=AZUL, height=60)
+        barra = tk.Frame(self, bg=NARANJA, height=60)
         barra.pack(fill="x")
-        tk.Label(barra, text="Gestor de Estudiantes", bg=AZUL, fg="white",
+        tk.Label(barra, text="Gestor de Estudiantes", bg=NARANJA, fg="white",
                  font=("Segoe UI", 18, "bold")).pack(side="left", padx=20, pady=12)
 
     def crear_formulario(self):
@@ -125,7 +146,7 @@ class VentanaPrincipal(tk.Tk):
 
     def crear_barra_estado(self):
         self.var_estado = tk.StringVar(value="Listo")
-        tk.Label(self, textvariable=self.var_estado, bg="#e3e8f0", fg=AZUL,
+        tk.Label(self, textvariable=self.var_estado, bg="#e3e8f0", fg=NARANJA,
                  anchor="w", padx=12, font=("Segoe UI", 9)).pack(fill="x", side="bottom")
 
     def actualizar_tabla(self):
