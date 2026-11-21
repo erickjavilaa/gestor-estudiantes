@@ -1,7 +1,8 @@
 import os
 import ctypes
+from logica.exportador_pdf import exportar_pdf as generar_pdf
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
 
 from logica.estudiante import Estudiante
 from logica.gestor import GestorEstudiantes
@@ -122,6 +123,8 @@ class VentanaPrincipal(tk.Tk):
                    command=self.limpiar).pack(side="left", padx=4)
         ttk.Button(botones, text="Imprimir", style="Normal.TButton",
                    command=self.imprimir).pack(side="left", padx=4)
+        ttk.Button(botones, text="Exportar PDF", style="Normal.TButton",
+                   command=self.exportar_pdf).pack(side="left", padx=4)
 
     def crear_tabla(self):
         marco = ttk.Frame(self)
@@ -246,3 +249,27 @@ class VentanaPrincipal(tk.Tk):
             messagebox.showerror("Error", str(e))
             return
         messagebox.showinfo("Imprimir", f"Reporte guardado en:\n{ruta}")
+
+    def exportar_pdf(self):
+        ruta = filedialog.asksaveasfilename(
+            title="Guardar lista de estudiantes",
+            defaultextension=".pdf",
+            filetypes=[("Archivo PDF", "*.pdf")],
+            initialfile="lista_estudiantes.pdf",
+        )
+        if not ruta:  # el usuario canceló
+            return
+
+        try:
+            generar_pdf(self.gestor.listar(), ruta)
+        except ValueError as error:
+            messagebox.showerror("Error", str(error))
+            return
+
+        if messagebox.askyesno("Exportar PDF",
+                               f"PDF guardado en:\n{ruta}\n\n¿Quieres abrirlo ahora?"):
+            try:
+                os.startfile(ruta)  # abre el PDF con el programa predeterminado (Windows)
+            except (AttributeError, OSError):
+                messagebox.showinfo("Exportar PDF", "No se pudo abrir automáticamente. "
+                                                    "Búscalo en la ruta indicada.")
